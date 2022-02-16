@@ -3,6 +3,19 @@ import numpy as np
 import argparse
 import re
 import sys
+from io import StringIO
+
+from masscalc import nist
+
+
+def get_nist_data() -> np.ndarray:
+    data = np.genfromtxt(
+        StringIO(nist.data),
+        delimiter=",",
+        names=True,
+        dtype=[int, "U2", int, float, float],
+    )
+    return data[~np.isnan(data["Composition"])]  # limit to common isotopes
 
 
 def cartesian_product_masses_and_ratios(
@@ -31,11 +44,12 @@ def cartesian_product_masses_and_ratios(
 
 def calculate_masses_and_ratios(
     dict: Dict[str, int],
-    data: np.ndarray,
     minimum_formula_abundance: float = 1e-6,
     minimum_isotope_abundance: float = 1e-6,
     charge: int = 1,
 ) -> np.ndarray:
+    data = get_nist_data()
+
     masses, ratios = [], []
     for k, v in dict.items():
         for _ in range(v):
@@ -79,24 +93,15 @@ def plot_masses_and_ratios(x: np.ndarray) -> None:
     plt.show()
 
 
-if __name__ == "__main__":
+def main():
     args = parse_args(sys.argv[1:])
 
     dict = {}
     for (s, n) in re.findall("([A-Z][a-z]?)([0-9]*)", args.formula):
         dict[s] = dict.get(s, 0) + int(n or 1)
 
-    data = np.genfromtxt(
-        "nist_isotope_data.csv",
-        delimiter=",",
-        names=True,
-        dtype=[int, "U2", int, float, float],
-    )
-    data = data[~np.isnan(data["Composition"])]  # limit to common isotopes
-
     x = calculate_masses_and_ratios(
         dict,
-        data,
         charge=args.charge,
         minimum_isotope_abundance=args.minimum_isotope_abundance,
         minimum_formula_abundance=args.minimum_formula_abundance,
@@ -107,3 +112,7 @@ if __name__ == "__main__":
     else:
         print("Masses   :", x[:, 0])
         print("Abundance:", x[:, 1])
+
+
+if __name__ == "__main__":
+    main()
