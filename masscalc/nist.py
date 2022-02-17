@@ -1,4 +1,7 @@
-data = """Number,Symbol,Isotope,Mass,Composition
+import numpy as np
+from io import StringIO
+
+string_data = """Number,Symbol,Isotope,Mass,Composition
 # Special cases
 1,D,2,2.01410177812,1
 1,T,3,3.0160492779,1
@@ -3357,3 +3360,11 @@ data = """Number,Symbol,Isotope,Mass,Composition
 118,Og,293,293.21356,
 118,Og,294,294.21392,
 118,Og,295,295.21624,"""
+
+data = np.genfromtxt(
+    StringIO(string_data),
+    delimiter=",",
+    names=True,
+    dtype=[int, "U2", int, float, float],
+)
+data[~np.isnan(data["Composition"])]  # limit to common isotopes
