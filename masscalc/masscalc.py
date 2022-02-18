@@ -33,7 +33,7 @@ def calculate_masses_and_ratios(
     minimum_formula_abundance: float = 1e-6,
     minimum_isotope_abundance: float = 1e-6,
     charge: int = 1,
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray]:
 
     masses, ratios = [], []
     for k, v in dict.items():
@@ -48,13 +48,25 @@ def calculate_masses_and_ratios(
     masses, ratios = cartesian_product_masses_and_ratios(
         masses, ratios, minimum_formula_abundance=minimum_formula_abundance
     )
-    masses, ratios = np.sum(masses, axis=1), np.product(ratios, axis=1)
+    return np.sum(masses, axis=1), np.product(ratios, axis=1)
 
-    masses, idx, counts = np.unique(masses, return_counts=True, return_index=True)
-    ratios = ratios[idx] * counts
 
-    masses -= charge * 5.48579909065e-4  # mass e-
+def sum_unique_masses_and_ratios(
+    masses: np.ndarray, ratios: np.ndarray, decimals: int = 10, sort_ratio: bool = True
+) -> Tuple[np.ndarray, np.ndarray]:
 
-    order = np.argsort(ratios)[::-1]
+    order = np.argsort(masses)
+    masses = masses[order]
+    ratios = ratios[order]
+    _, idx, counts = np.unique(
+        np.round(masses, decimals=decimals), return_counts=True, return_index=True
+    )
+    masses = np.add.reduceat(masses, idx) / counts  # Mean mass
+    ratios = np.add.reduceat(ratios, idx)  # Ratio sum
 
-    return np.stack([masses, ratios], axis=1)[order]
+    if sort_ratio:
+        order = np.argsort(ratios)[::-1]
+        masses = masses[order]
+        ratios = ratios[order]
+
+    return masses, ratios

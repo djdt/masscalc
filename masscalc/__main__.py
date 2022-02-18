@@ -4,7 +4,7 @@ import argparse
 import re
 import sys
 
-from masscalc.masscalc import calculate_masses_and_ratios
+from masscalc.masscalc import calculate_masses_and_ratios, sum_unique_masses_and_ratios
 
 
 def parse_args(argv: List[str]) -> argparse.Namespace:
@@ -18,10 +18,10 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     return args
 
 
-def plot_masses_and_ratios(x: np.ndarray) -> None:
+def plot_masses_and_ratios(masses: np.ndarray, ratios: np.ndarray) -> None:
     import matplotlib.pyplot as plt
 
-    plt.stem(x[:, 0], x[:, 1], markerfmt=" ", basefmt=" ")
+    plt.stem(masses, ratios, markerfmt=" ", basefmt=" ")
     plt.show()
 
 
@@ -32,18 +32,23 @@ def main():
     for (s, n) in re.findall("([A-Z][a-z]?)([0-9]*)", args.formula):
         dict[s] = dict.get(s, 0) + int(n or 1)
 
-    x = calculate_masses_and_ratios(
+    masses, ratios = calculate_masses_and_ratios(
         dict,
         charge=args.charge,
         minimum_isotope_abundance=args.minimum_isotope_abundance,
         minimum_formula_abundance=args.minimum_formula_abundance,
     )
 
+    masses, ratios = sum_unique_masses_and_ratios(masses, ratios)
+
+    # Need to implement adducts etc.
+    masses -= args.charge * 5.48579909065e-4  # mass e-
+
     if args.plot:
-        plot_masses_and_ratios(x)
+        plot_masses_and_ratios(masses, ratios)
     else:
-        print("Masses   :", x[:, 0])
-        print("Abundance:", x[:, 1])
+        print("Masses   :", masses)
+        print("Abundance:", ratios)
 
 
 if __name__ == "__main__":
