@@ -17,10 +17,11 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument("--minimum_formula_abundance", type=float, default=1e-6)
     args = parser.parse_args(argv)
 
-    m = re.match("M([+-])([A-Z][A-Za-z0-9]*)?", args.species)
-    if m is None:
-        parser.error("--species must have the form M<+-> or M<+-><formula>.")
-    args.species = m[2], 1 if m[1] == "+" else -1
+    if args.species is not None:
+        m = re.match("M([+-])([A-Z][A-Za-z0-9]*)?", args.species)
+        if m is None:
+            parser.error("--species must have the form M<+-> or M<+-><formula>.")
+        args.species = m[2], 1 if m[1] == "+" else -1
 
     return args
 
