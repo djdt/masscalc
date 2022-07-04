@@ -11,7 +11,7 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("formula")
     parser.add_argument("--species", help="Adduct or loss as M<+-><formula>.")
-    parser.add_argument("--charge", type=int, default=1)
+    parser.add_argument("--charge", type=int, default=0)
     parser.add_argument("--plot", action="store_true")
     parser.add_argument("--minimum_isotope_abundance", type=float, default=1e-6)
     parser.add_argument("--minimum_formula_abundance", type=float, default=1e-6)
