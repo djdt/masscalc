@@ -1,7 +1,10 @@
 from typing import Dict, List, Tuple
+
 import numpy as np
 
 from masscalc.nist import data as nist_data
+
+e_mass = 5.48579909065e-4
 
 
 def cartesian_product_masses_and_ratios(
@@ -45,10 +48,16 @@ def calculate_masses_and_ratios(
             masses.append(x["Mass"])
             ratios.append(x["Composition"])
 
-    masses, ratios = cartesian_product_masses_and_ratios(
+    mass_array, ratio_array = cartesian_product_masses_and_ratios(
         masses, ratios, minimum_formula_abundance=minimum_formula_abundance
     )
-    return np.sum(masses, axis=1), np.product(ratios, axis=1)
+    # Loss, gain of e-
+    mass_array -= charge * e_mass
+    # Mass as m/z
+    if charge != 0:
+        mass_array /= abs(charge)
+
+    return np.sum(mass_array, axis=1), np.product(ratio_array, axis=1)
 
 
 def sum_unique_masses_and_ratios(
