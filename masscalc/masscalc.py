@@ -2,7 +2,7 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
-from masscalc.nist import data as nist_data
+from masscalc.nist import get_isotopes
 
 e_mass = 5.48579909065e-4
 
@@ -33,18 +33,18 @@ def cartesian_product_masses_and_ratios(
 
 def calculate_masses_and_ratios(
     dict: Dict[str, int],
+    charge: int = 0,
     minimum_formula_abundance: float = 1e-6,
     minimum_isotope_abundance: float = 1e-6,
-    charge: int = 0,
+    monoisotopic: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray]:
 
     masses, ratios = [], []
     for k, v in dict.items():
+        x = get_isotopes(k, minimum_abundance=minimum_isotope_abundance)
+        if monoisotopic:
+            x = x[np.argmax(x["Composition"])]
         for _ in range(v):
-            x = nist_data[
-                (nist_data["Symbol"] == k)
-                & (nist_data["Composition"] > minimum_isotope_abundance)
-            ]
             masses.append(x["Mass"])
             ratios.append(x["Composition"])
 

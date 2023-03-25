@@ -17,6 +17,11 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     parser.add_argument("--plot", action="store_true")
     parser.add_argument("--minimum_isotope_abundance", type=float, default=1e-6)
     parser.add_argument("--minimum_formula_abundance", type=float, default=1e-6)
+    parser.add_argument(
+        "--monoisotopic",
+        action="store_true",
+        help="Calculate monoisotopic mass distribution.",
+    )
     args = parser.parse_args(argv)
 
     if args.species is not None:

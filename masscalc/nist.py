@@ -1,5 +1,6 @@
-import numpy as np
 from io import StringIO
+
+import numpy as np
 
 string_data = """Number,Symbol,Isotope,Mass,Composition
 # Special cases
@@ -3368,3 +3369,7 @@ data = np.genfromtxt(
     dtype=[int, "U2", int, float, float],
 )
 data[~np.isnan(data["Composition"])]  # limit to common isotopes
+
+
+def get_isotopes(symbol: str, minimum_abundance: float = 1e-6) -> np.ndarray:
+    return data[(data["Symbol"] == symbol) & (data["Composition"] > minimum_abundance)]
