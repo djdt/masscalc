@@ -20,10 +20,9 @@ def parse_args(argv: List[str]) -> argparse.Namespace:
     args = parser.parse_args(argv)
 
     if args.species is not None:
-        m = re.match("M([+-])([A-Z][A-Za-z0-9]*)?", args.species)
+        m = re.match("M[+-][A-Z][A-Za-z0-9]*?", args.species)
         if m is None:
             parser.error("--species must have the form M<+-><formula>.")
-        args.species = m[2], 1 if m[1] == "+" else -1
 
     return args
 
@@ -41,9 +40,10 @@ def main():
     atoms = parse_formula_string(args.formula)
 
     if args.species:
-        species_atoms = parse_formula_string(args.species[0])
+        gain_or_loss = 1 if args.species[1] == "+" else -1
+        species_atoms = parse_formula_string(args.species[2:])
         atoms = {
-            key: atoms.get(key, 0) + species_atoms.get(key, 0) * args.species[1]
+            key: atoms.get(key, 0) + species_atoms.get(key, 0) * gain_or_loss
             for key in set(atoms) | set(species_atoms)
         }
 
