@@ -35,7 +35,7 @@ def calculate_masses_and_ratios(
     dict: Dict[str, int],
     minimum_formula_abundance: float = 1e-6,
     minimum_isotope_abundance: float = 1e-6,
-    charge: int = 1,
+    charge: int = 0,
 ) -> Tuple[np.ndarray, np.ndarray]:
 
     masses, ratios = [], []
